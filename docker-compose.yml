@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # 1. Base de Datos PostgreSQL de Alta Disponibilidad
+  postgres:
+    image: postgres:16-alpine
+    container_name: enterprise-agentops-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: migration_orchestrator
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: enterprise_secure_password_2026
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend-orchestrator/src/main/resources/db/migration/V1__init_enterprise_schema.sql:/docker-entrypoint-initdb.d/V1__init_enterprise_schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d migration_orchestrator"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. Motor de Agentes LangGraph (Python FastAPI)
+  agent-engine:
+    build:
+      context: ./agent-engine-python
+      dockerfile: Dockerfile
+    container_name: enterprise-agentops-langgraph
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      PYTHONUNBUFFERED: "1"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/docs || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # 3. Núcleo Orquestador Spring Boot 3.3 (Java 21)
+  backend-orchestrator:
+    build:
+      context: ./backend-orchestrator
+      dockerfile: Dockerfile
+    container_name: enterprise-agentops-orchestrator
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      DB_USERNAME: postgres
+      DB_PASSWORD: enterprise_secure_password_2026
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/migration_orchestrator
+      AGENT_ENGINE_URL: http://agent-engine:8000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      agent-engine:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
