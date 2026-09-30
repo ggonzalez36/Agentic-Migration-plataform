@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LegacyMigrationGraphRunRequest",
+  "type": "object",
+  "required": [
+    "thread_id",
+    "trace_id",
+    "agent_type",
+    "phase",
+    "source_object_name",
+    "legacy_code"
+  ],
+  "properties": {
+    "thread_id": {
+      "type": "string",
+      "description": "LangGraph thread ID para persistencia de checkpoint"
+    },
+    "trace_id": {
+      "type": "string",
+      "description": "W3C Distributed Tracing ID"
+    },
+    "span_id": {
+      "type": "string",
+      "description": "W3C Parent Span ID"
+    },
+    "agent_type": {
+      "type": "string",
+      "enum": [
+        "PLSQL_CODE_ANALYZER",
+        "MICROSERVICE_GENERATOR",
+        "QA_TEST_VALIDATOR",
+        "HUMAN_GATEKEEPER_CHECKPOINT",
+        "ARCHITECTURE_SYNTHESIZER"
+      ]
+    },
+    "phase": {
+      "type": "string",
+      "enum": [
+        "DISCOVERY_AND_AST_ANALYSIS",
+        "BUSINESS_RULE_EXTRACTION",
+        "SCHEMA_AND_MODEL_MAPPING",
+        "CODE_GENERATION",
+        "QA_UNIT_TESTING",
+        "HUMAN_AUDIT_APPROVAL",
+        "DEPLOYMENT_PREPARATION"
+      ]
+    },
+    "source_object_name": {
+      "type": "string",
+      "description": "Nombre del objeto PL/SQL fuente (ej. PKG_PAYMENT_SETTLEMENT.prc_exec)"
+    },
+    "legacy_code": {
+      "type": "string",
+      "description": "Código fuente PL/SQL a procesar"
+    },
+    "context": {
+      "type": "object",
+      "description": "Metadatos adicionales (esquema DDL, dependencias de tablas, configuración de target)"
+    }
+  }
+}

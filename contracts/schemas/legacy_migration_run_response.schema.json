@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LegacyMigrationGraphRunResponse",
+  "type": "object",
+  "required": [
+    "thread_id",
+    "run_id",
+    "prompt_tokens",
+    "completion_tokens",
+    "total_tokens",
+    "requires_human_approval"
+  ],
+  "properties": {
+    "thread_id": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "checkpoint_id": {
+      "type": "string"
+    },
+    "generated_code": {
+      "type": "string",
+      "description": "Código Java Spring Boot generado (o artefacto multiclase)"
+    },
+    "analysis_summary": {
+      "type": "string",
+      "description": "Resumen técnico de dependencias, variables y reglas de negocio extraídas"
+    },
+    "state_output": {
+      "type": "object",
+      "description": "Volcado del TypedDict state de LangGraph"
+    },
+    "prompt_tokens": {
+      "type": "integer"
+    },
+    "completion_tokens": {
+      "type": "integer"
+    },
+    "total_tokens": {
+      "type": "integer"
+    },
+    "estimated_cost_usd": {
+      "type": "number"
+    },
+    "requires_human_approval": {
+      "type": "boolean"
+    },
+    "approval_message": {
+      "type": "string"
+    }
+  }
+}
