@@ -120,6 +120,7 @@ C4Component
 ### 3.1 Flow 1: Complete Migration with Human-in-the-Loop Sign-off
 
 ```mermaid
+%%{init: {'theme': 'forest'}}%%
 sequenceDiagram
     autonumber
     actor Arch as Lead Architect (Human)
@@ -166,6 +167,7 @@ sequenceDiagram
 ### 3.2 Flow 2: Zero-Trust Defense against Prompt Injection & Jailbreak
 
 ```mermaid
+%%{init: {'theme': 'forest'}}%%
 sequenceDiagram
     autonumber
     actor Attacker as Rogue User / Embedded SQL Injection

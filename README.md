@@ -9,6 +9,7 @@ An enterprise-grade, hybrid platform designed for the autonomous modernization o
 The platform follows a **Hexagonal Architecture (Ports & Adapters)** and **Domain-Driven Design (DDD)** pattern, decoupling transactional core business logic from agentic reasoning:
 
 ```mermaid
+%%{init: {'theme': 'forest'}}%%
 flowchart TD
     subgraph ClientLayer ["Client & Operations Layer"]
         WebUI["Web Management Console (React / Vite)"]
@@ -69,6 +70,7 @@ flowchart TD
 Autonomous code generation pipelines in regulated banking cannot rely on unmonitored LLM updates. We enforce an automated **MLOps & LLMOps Continuous Evaluation (CE)** harness:
 
 ```mermaid
+%%{init: {'theme': 'forest'}}%%
 flowchart LR
     PR[Pull Request to Agent Code] --> GHAction[GitHub Actions MLOps Workflow]
     GHAction --> GoldenDS[(Golden Dataset\nHistorical PL/SQL Cases)]
