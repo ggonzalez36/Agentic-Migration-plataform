@@ -33,14 +33,19 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
+
 @WebMvcTest(MigrationController.class)
 @Import(SecurityConfig.class)
+@ActiveProfiles("test")
 @DisplayName("Functional Test: MigrationController & Zero-Trust RBAC Security")
 class MigrationControllerSecurityFunctionalTest {
 
     @Autowired private MockMvc mockMvc;
     @Autowired private ObjectMapper objectMapper;
 
+    @MockBean private JpaMetamodelMappingContext jpaMappingContext;
     @MockBean private AgentOrchestratorGateway agentGateway;
     @MockBean private MigrationProjectRepository projectRepository;
     @MockBean private AgentTaskRepository taskRepository;

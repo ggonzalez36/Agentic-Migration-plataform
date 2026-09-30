@@ -32,7 +32,7 @@ jobs:
       - name: Compile & Run Testing Pyramid (Unit, Functional, Smoke, E2E)
         working-directory: ./backend-orchestrator
         run: |
-          mvn clean test --batch-mode
+          mvn clean test -Dspring.profiles.active=test --batch-mode
 
       - name: Package Spring Boot Executable JAR
         working-directory: ./backend-orchestrator
