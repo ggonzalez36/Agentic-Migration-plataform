@@ -1,0 +1,105 @@
+name: Enterprise CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ============================================================================
+  # 1. Spring Boot 3.3 Core Orchestrator (Java 21) CI Job
+  # ============================================================================
+  spring-boot-ci:
+    name: "Spring Boot Core: Build, Security & Test Pyramid"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21 (Eclipse Temurin)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Compile & Run Testing Pyramid (Unit, Functional, Smoke, E2E)
+        working-directory: ./backend-orchestrator
+        run: |
+          mvn clean test --batch-mode
+
+      - name: Package Spring Boot Executable JAR
+        working-directory: ./backend-orchestrator
+        run: |
+          mvn package -DskipTests --batch-mode
+
+      - name: Upload Test Results Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-test-reports
+          path: backend-orchestrator/target/surefire-reports/
+
+  # ============================================================================
+  # 2. Python LangGraph Agent Engine CI Job
+  # ============================================================================
+  python-agent-ci:
+    name: "Python LangGraph: Lint, Guardrails & Pytest"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: 'agent-engine-python/requirements.txt'
+
+      - name: Install Dependencies
+        working-directory: ./agent-engine-python
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Pytest Test Suite
+        working-directory: ./agent-engine-python
+        run: |
+          pytest tests/ -v --tb=short
+
+  # ============================================================================
+  # 3. Docker Container Build Verification
+  # ============================================================================
+  docker-build-verification:
+    name: "Docker Build Verification"
+    needs: [spring-boot-ci, python-agent-ci]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Spring Boot Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend-orchestrator
+          push: false
+          tags: enterprise/agentops-orchestrator:test
+
+      - name: Build Python LangGraph Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./agent-engine-python
+          push: false
+          tags: enterprise/agentops-langgraph:test

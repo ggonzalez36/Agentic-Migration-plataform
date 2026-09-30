@@ -1,6 +1,6 @@
 # Agentic-Migration-plataform
 
-An enterprise-grade, hybrid platform designed for the autonomous modernization of mission-critical legacy architectures (Oracle PL/SQL to Spring Boot 3 & Java 21 microservices). Built with a decoupled Python/LangGraph multi-agent workflow engine and hardened with banking-grade **AgentOps** observability, cryptographic state non-repudiation, and Human-in-the-Loop (HITL) four-eyes governance.
+An enterprise-grade, hybrid platform designed for the autonomous modernization of mission-critical legacy architectures (Oracle PL/SQL to Spring Boot 3 & Java 21 microservices). Built with a decoupled Python/LangGraph multi-agent workflow engine and hardened with banking-grade **AgentOps / MLOps** automated evaluation pipelines, cryptographic state non-repudiation, and Human-in-the-Loop (HITL) four-eyes governance.
 
 ---
 
@@ -64,6 +64,40 @@ flowchart TD
 
 ---
 
+## 🤖 Enterprise MLOps & Continuous Evaluation (GitHub Actions)
+
+Autonomous code generation pipelines in regulated banking cannot rely on unmonitored LLM updates. We enforce an automated **MLOps & LLMOps Continuous Evaluation (CE)** harness:
+
+```mermaid
+flowchart LR
+    PR[Pull Request to Agent Code] --> GHAction[GitHub Actions MLOps Workflow]
+    GHAction --> GoldenDS[(Golden Dataset\nHistorical PL/SQL Cases)]
+    GHAction --> BenchmarkRunner[eval_benchmark.py]
+    
+    subgraph QualityGates ["Automated Quality & Cost Regression Gates"]
+        Gate1[Security Injection Interception: 100%]
+        Gate2[Business Rule AST Recall: > 95%]
+        Gate3[FinOps Token Budget Gate: < 6,000 / unit]
+        Gate4[Deterministic HITL Routing Gate]
+    end
+
+    BenchmarkRunner --> QualityGates
+    QualityGates -->|Pass| PRComment[Post Markdown Summary to PR & Allow Merge]
+    QualityGates -->|Fail| BlockMerge[Block PR & Alert Architect]
+```
+
+### GitHub Actions Workflows
+1. [**`ci-cd-pipeline.yml`**](file:///c:/Users/User/Documents/Engiennering/Agents-ops/.github/workflows/ci-cd-pipeline.yml):
+   - **Java 21 / Spring Boot Core**: Compiles and executes the full testing pyramid (Unit, Functional with Spring Security MockMvc, Smoke, and E2E with HITL checkpoints).
+   - **Python 3.11 / LangGraph Engine**: Installs dependencies and runs the Pytest suite (`pytest tests/`).
+   - **Docker Build Verification**: Validates container image builds for both components.
+2. [**`agentops-eval-benchmark.yml`**](file:///c:/Users/User/Documents/Engiennering/Agents-ops/.github/workflows/agentops-eval-benchmark.yml):
+   - **Golden Benchmark Runner**: Executes [`eval_benchmark.py`](file:///c:/Users/User/Documents/Engiennering/Agents-ops/agent-engine-python/eval/eval_benchmark.py) against [`golden_dataset.json`](file:///c:/Users/User/Documents/Engiennering/Agents-ops/agent-engine-python/eval/golden_dataset.json).
+   - **Step Summary Integration**: Publishes a real-time Markdown scoreboard directly to `$GITHUB_STEP_SUMMARY`.
+   - **Artifact Archival**: Preserves detailed JSON evaluation reports for compliance audits.
+
+---
+
 ## 📚 Architectural Decision Records (ADRs)
 
 Formal design documentation adhering to the MADR framework is maintained under [`architecture/adrs/`](file:///c:/Users/User/Documents/Engiennering/Agents-ops/architecture/adrs):
@@ -72,6 +106,7 @@ Formal design documentation adhering to the MADR framework is maintained under [
 - [**ADR-002: Banking-Grade AgentOps, Observability, and Tamper-Evident Auditing**](file:///c:/Users/User/Documents/Engiennering/Agents-ops/architecture/adrs/ADR-002-agentops-auditability.md)
 - [**ADR-003: Human-in-the-Loop (HITL) Checkpoints & Four-Eyes Governance**](file:///c:/Users/User/Documents/Engiennering/Agents-ops/architecture/adrs/ADR-003-human-in-the-loop-governance.md)
 - [**ADR-004: Zero-Trust Cybersecurity, LLM Guardrails, and Data Protection**](file:///c:/Users/User/Documents/Engiennering/Agents-ops/architecture/adrs/ADR-004-cybersecurity-zero-trust-guardrails.md)
+- [**ADR-005: MLOps / LLMOps Continuous Evaluation & Regression Gates**](file:///c:/Users/User/Documents/Engiennering/Agents-ops/architecture/adrs/ADR-005-mlops-continuous-evaluation.md)
 
 Detailed C4 diagrams (Context, Container, Component), Sequence flows, and STRIDE threat analysis are available in the [**Comprehensive System Design Document**](file:///c:/Users/User/Documents/Engiennering/Agents-ops/architecture/system-design/SYSTEM_DESIGN.md).
 
@@ -112,6 +147,9 @@ The project includes an exhaustive testing suite across the entire pyramid:
 
 ```text
 .
+├── .github/workflows/
+│   ├── ci-cd-pipeline.yml           # Multi-job Spring Boot & Python CI/CD
+│   └── agentops-eval-benchmark.yml  # MLOps Continuous Evaluation & Benchmark Suite
 ├── architecture/
 │   ├── adrs/                        # Formal Architectural Decision Records (MADR)
 │   └── system-design/
@@ -134,6 +172,9 @@ The project includes an exhaustive testing suite across the entire pyramid:
 │   ├── main.py                      # FastAPI Web Server
 │   ├── graph/migration_graph.py     # StateGraph Definition & Checkpoint Logic
 │   ├── security/guardrails.py       # OWASP LLM Defense & Input Sanitization
+│   ├── eval/                        # MLOps Golden Benchmark Dataset & Evaluator
+│   │   ├── golden_dataset.json
+│   │   └── eval_benchmark.py
 │   └── tests/                       # Pytest unit & functional suites
 ├── contracts/                       # Strict JSON Schema API Specifications
 ├── docker-compose.yml               # Local Multi-Service Orchestration

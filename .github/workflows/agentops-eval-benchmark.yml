@@ -1,0 +1,57 @@
+name: AgentOps / MLOps Continuous Evaluation
+
+on:
+  pull_request:
+    paths:
+      - 'agent-engine-python/**'
+      - 'contracts/**'
+      - '.github/workflows/agentops-eval-benchmark.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ============================================================================
+  # MLOps Continuous Evaluation & Benchmark Suite
+  # ============================================================================
+  evaluate-agent-models:
+    name: "MLOps: Golden Dataset Benchmark & Cost Gate"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: 'agent-engine-python/requirements.txt'
+
+      - name: Install Dependencies
+        working-directory: ./agent-engine-python
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run MLOps Benchmark Evaluation & FinOps Gates
+        working-directory: ./agent-engine-python
+        run: |
+          python eval/eval_benchmark.py
+
+      - name: Publish Evaluation Summary to GitHub Step Summary
+        if: always()
+        run: |
+          if [ -f agent-engine-python/eval/reports/eval_summary.md ]; then
+            cat agent-engine-python/eval/reports/eval_summary.md >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload Evaluation Reports as Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agentops-mlops-eval-reports
+          path: agent-engine-python/eval/reports/
